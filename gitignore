@@ -1,0 +1,28 @@
+# Ignoruj plik z kluczem API
+.env
+
+# Pliki Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Pliki środowisk wirtualnych
+venv/
+.env/
+env/
+.venv/
+
+# Pliki logów i tymczasowe
+*.log
+*.tmp
+*.swp
+
+# Pliki IDE (VSCode, PyCharm itp.)
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Pliki systemowe
+.DS_Store
+Thumbs.db
