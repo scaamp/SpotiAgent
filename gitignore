@@ -26,3 +26,6 @@ env/
 # Pliki systemowe
 .DS_Store
 Thumbs.db
+
+# Tokens
+spotify_tokens.json
