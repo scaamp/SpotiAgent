@@ -8,7 +8,12 @@ import urllib.parse
 import webbrowser
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from dotenv import load_dotenv
-
+from pydub import AudioSegment
+from pydub.playback import play
+import io
+import sounddevice as sd
+import soundfile as sf
+import tempfile
 import openai
 import pyttsx3
 import requests
@@ -26,9 +31,9 @@ redirect_uri = os.getenv("SPOTIFY_REDIRECT_URI", "http://127.0.0.1:8888/callback
 auth_code = None
 TOKEN_FILE = "spotify_tokens.json"
 
-# Kolejka komend głosowych i tekstowych
+# Global command queue for communication between threads
 command_queue = queue.Queue()
-
+response_queue = queue.Queue()
 
 # Klasa do obsługi rozpoznawania mowy
 class VoiceRecognizer:
@@ -61,10 +66,33 @@ class VoiceRecognizer:
     def speak(self, text):
         """Wypowiedz tekst"""
         # print(f"Agent: {text}")
+        instructions = (
+            "Mów jak entuzjastyczny, spokojny lektor radiowy. "
+            "Brzmisz przyjaźnie i naturalnie, z lekkim uśmiechem w głosie. "
+            "Zachowuj płynność, wyraź dykcję i nadaj rytm jak prezenter w radiu muzycznym. "
+            "Nie przesadzaj z emocjami, ale brzmisz zaangażowanie. "
+            "To Ty prowadzisz muzyczną rozmowę ze słuchaczem."
+            )
+        
         if self.muted:
             return
-        self.engine.say(text)
-        self.engine.runAndWait()
+        # Wygeneruj mowę z tekstu
+        response = openai.audio.speech.create(
+            model="gpt-4o-mini-tts",
+            voice="shimmer",
+            input=text,
+            speed=1.3,
+            instructions=instructions
+        )
+        
+        # Dodaj ciszę
+        silence = AudioSegment.silent(duration=500)  # 0.5 sekundy
+        audio_bytes = io.BytesIO(response.content)
+        tts_audio = AudioSegment.from_file(audio_bytes, format="mp3")
+        full_audio = silence + tts_audio
+        play(full_audio)
+        # self.engine.say(text)
+        # self.engine.runAndWait()
 
     def _listen_once(self):
         """Jednorazowe nasłuchiwanie komendy głosowej"""
