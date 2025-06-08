@@ -421,7 +421,7 @@ def play_song(track_id, access_token, voice_agent=None):
 
         # Następnie zapytaj użytkownika czy chce dodać podobne utwory do kolejki
         if voice_agent:
-            voice_agent.speak("Czy chcesz, żebym dodał podobne utwory do kolejki? Odpowiedz tak lub nie.")
+            voice_agent.speak("Czy chcesz, żebym dodał podobne utwory do kolejki?")
             print("Czy chcesz, żebym dodał podobne utwory do kolejki? (tak/nie)")
             
             # Poczekaj na odpowiedź użytkownika

@@ -19,6 +19,8 @@ class VoiceRecognizer:
         self.listen_thread = None
         self.voice_command = None
         self.muted = False
+        self.speaking = False
+        self.speak_thread = None
 
     def start_listening(self):
         """Rozpocznij słuchanie w osobnym wątku"""
@@ -38,33 +40,57 @@ class VoiceRecognizer:
             self.listen_thread.join(timeout=1)
         print("Nasłuchiwanie zatrzymane.")
 
+    def _play_audio(self, audio_data):
+        """Odtwarza audio w osobnym wątku"""
+        try:
+            # Dodaj ciszę
+            silence = AudioSegment.silent(duration=500)  # 0.5 sekundy
+            audio_bytes = io.BytesIO(audio_data)
+            tts_audio = AudioSegment.from_file(audio_bytes, format="mp3")
+            full_audio = silence + tts_audio
+            play(full_audio)
+        except Exception as e:
+            print(f"Błąd podczas odtwarzania audio: {e}")
+        finally:
+            self.speaking = False
+
     def speak(self, text):
-        """Wypowiedz tekst"""
+        """Wypowiedz tekst w osobnym wątku"""
+        if self.muted:
+            return
+
+        if self.speaking:
+            # print("Agent już mówi, czekam na zakończenie...")
+            if self.speak_thread and self.speak_thread.is_alive():
+                self.speak_thread.join()
+
         instructions = (
             "Mów jak entuzjastyczny, spokojny lektor radiowy. "
             "Brzmisz przyjaźnie i naturalnie, z lekkim uśmiechem w głosie. "
             "Zachowuj płynność, wyraź dykcję i nadaj rytm jak prezenter w radiu muzycznym. "
             "Nie przesadzaj z emocjami, ale brzmisz zaangażowanie. "
             "To Ty prowadzisz muzyczną rozmowę ze słuchaczem."
-            )
-        
-        if self.muted:
-            return
-        # Wygeneruj mowę z tekstu
-        response = openai.audio.speech.create(
-            model="gpt-4o-mini-tts",
-            voice="shimmer",
-            input=text,
-            speed=1.3,
-            instructions=instructions
         )
         
-        # Dodaj ciszę
-        silence = AudioSegment.silent(duration=500)  # 0.5 sekundy
-        audio_bytes = io.BytesIO(response.content)
-        tts_audio = AudioSegment.from_file(audio_bytes, format="mp3")
-        full_audio = silence + tts_audio
-        play(full_audio)
+        try:
+            # Wygeneruj mowę z tekstu
+            response = openai.audio.speech.create(
+                model="gpt-4o-mini-tts",
+                voice="shimmer",
+                input=text,
+                speed=1.3,
+                instructions=instructions
+            )
+            
+            # Odtwórz audio w osobnym wątku
+            self.speaking = True
+            self.speak_thread = threading.Thread(target=self._play_audio, args=(response.content,))
+            self.speak_thread.daemon = True
+            self.speak_thread.start()
+            
+        except Exception as e:
+            print(f"Błąd podczas generowania mowy: {e}")
+            self.speaking = False
 
     def _listen_once(self):
         """Jednorazowe nasłuchiwanie komendy głosowej"""
