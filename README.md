@@ -216,9 +216,3 @@ Synteza mowy (pyttsx3)
 * [ ] Historia czatu
 * [ ] Klonowanie głosu (np. ElevenLabs)
 * [ ] Zapis transkrypcji i logów
-
----
-
-## 📆 Licencja
-
-MIT License © 2025 Jakub
