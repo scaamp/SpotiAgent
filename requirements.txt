@@ -1,0 +1,7 @@
+requests==2.32.3
+python-dotenv==1.1.0
+openai==1.76.0
+sounddevice==0.5.2
+soundfile==0.13.1
+pydub==0.25.1
+SpeechRecognition==3.14.2
