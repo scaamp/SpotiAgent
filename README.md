@@ -23,7 +23,7 @@ A voice-controlled assistant that integrates with Spotify and OpenAI GPT-4. It e
 
 ```bash
 git clone https://github.com/scaamp/SpotiAgent.git
-cd spotify-voice-assistant
+cd SpotiAgent
 ```
 
 ### 2. Install dependencies
@@ -136,7 +136,7 @@ Asystent sterowany głosem, integrujący się z Spotify i GPT-4. Pozwala sterowa
 
 ```bash
 git clone https://github.com/scaamp/SpotiAgent.git
-cd spotify-voice-assistant
+cd SpotiAgent
 ```
 
 ### 2. Instalacja zależności
